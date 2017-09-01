@@ -15,6 +15,7 @@
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
         app:layout_anchor="@+id/draw_insets_frame_layout"
+        android:stateListAnimator="@animator/fab_state_list_anim"
         app:layout_anchorGravity="bottom|end"
         app:pressedTranslationZ="@dimen/fab_pressed_translation_z" />
 
@@ -52,6 +53,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="@dimen/detail_card_top_margin"
                     android:background="#fff"
+                    android:elevation="4dp"
                     android:maxWidth="@dimen/detail_card_max_width"
                     android:orientation="vertical">
 
@@ -104,6 +106,8 @@
             </FrameLayout>
         </com.example.xyzreader.ui.ObservableScrollView>
     </com.example.xyzreader.ui.DrawInsetsFrameLayout>
+
+
 
 
 </android.support.design.widget.CoordinatorLayout>

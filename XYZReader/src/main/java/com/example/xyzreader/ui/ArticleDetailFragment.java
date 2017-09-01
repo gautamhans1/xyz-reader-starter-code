@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
@@ -34,14 +35,15 @@ import com.example.xyzreader.data.ArticleLoader;
  */
 public class ArticleDetailFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String ARG_ITEM_ID = "item_id";
     private static final String TAG = "ArticleDetailFragment";
+
+    public static final String ARG_ITEM_ID = "item_id";
     private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
     private View mRootView;
-    private int mMutedColor = 0xFF333333;
+    private int mVibrantColor = 0xFF333333;
     private ObservableScrollView mScrollView;
     private DrawInsetsFrameLayout mDrawInsetsFrameLayout;
     private ColorDrawable mStatusBarColorDrawable;
@@ -66,20 +68,6 @@ public class ArticleDetailFragment extends Fragment implements
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
-    }
-
-    static float progress(float v, float min, float max) {
-        return constrain((v - min) / (max - min), 0, 1);
-    }
-
-    static float constrain(float val, float min, float max) {
-        if (val < min) {
-            return min;
-        } else if (val > max) {
-            return max;
-        } else {
-            return val;
-        }
     }
 
     @Override
@@ -162,12 +150,26 @@ public class ArticleDetailFragment extends Fragment implements
                     mStatusBarFullOpacityBottom - mTopInset * 3,
                     mStatusBarFullOpacityBottom - mTopInset);
             color = Color.argb((int) (255 * f),
-                    (int) (Color.red(mMutedColor) * 0.9),
-                    (int) (Color.green(mMutedColor) * 0.9),
-                    (int) (Color.blue(mMutedColor) * 0.9));
+                    (int) (Color.red(mVibrantColor) * 0.9),
+                    (int) (Color.green(mVibrantColor) * 0.9),
+                    (int) (Color.blue(mVibrantColor) * 0.9));
         }
         mStatusBarColorDrawable.setColor(color);
         mDrawInsetsFrameLayout.setInsetBackground(mStatusBarColorDrawable);
+    }
+
+    static float progress(float v, float min, float max) {
+        return constrain((v - min) / (max - min), 0, 1);
+    }
+
+    static float constrain(float val, float min, float max) {
+        if (val < min) {
+            return min;
+        } else if (val > max) {
+            return max;
+        } else {
+            return val;
+        }
     }
 
     private void bindViews() {
@@ -199,15 +201,21 @@ public class ArticleDetailFragment extends Fragment implements
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                        public void onResponse(final ImageLoader.ImageContainer imageContainer, boolean b) {
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
-                                updateStatusBar();
+                                final Palette p = Palette.from(bitmap).generate();
+
+                                Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                    @Override
+                                    public void onGenerated(Palette p) {
+                                        mVibrantColor = p.getDarkVibrantColor(0xFF333333);
+                                        mPhotoView.setImageBitmap(imageContainer.getBitmap());
+                                        mRootView.findViewById(R.id.meta_bar)
+                                                .setBackgroundColor(mVibrantColor);
+                                        updateStatusBar();
+                                    }
+                                });
                             }
                         }
 
@@ -219,7 +227,7 @@ public class ArticleDetailFragment extends Fragment implements
         } else {
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
-            bylineView.setText("N/A");
+            bylineView.setText("N/A" );
             bodyView.setText("N/A");
         }
     }
