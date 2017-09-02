@@ -40,6 +40,12 @@ public class ObservableScrollView extends ScrollView {
         }
     }
 
+//    @Override
+//    public void setSmoothScrollingEnabled(boolean smoothScrollingEnabled) {
+//        super.setSmoothScrollingEnabled(true);
+//    }
+//
+
 
 
     @Override
